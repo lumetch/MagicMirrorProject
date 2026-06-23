@@ -1,0 +1,77 @@
+/* Portrait layout — tightens padding and sizes for 1080×1920 */
+body {
+	overflow: hidden;
+}
+
+.region.top.left,
+.region.top.right {
+	width: 50%;
+}
+
+.region.upper.third,
+.region.middle.center,
+.region.lower.third {
+	width: 100%;
+	max-width: 100%;
+}
+
+.module {
+	margin: 10px 15px;
+}
+
+.clock .time {
+	font-size: 48px;
+}
+
+.clock .date {
+	font-size: 18px;
+}
+
+/* Hue room cards — used by MMM-PhilipsHue */
+.hue-rooms {
+	width: 100%;
+}
+
+.hue-room {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 12px;
+	margin-bottom: 6px;
+	border-radius: 4px;
+	background: rgb(255 255 255 / 5%);
+	cursor: pointer;
+	transition: background 0.2s;
+}
+
+.hue-room.on {
+	border-left: 3px solid #fc4;
+}
+
+.hue-room.off {
+	border-left: 3px solid #444;
+	opacity: 0.7;
+}
+
+.hue-name {
+	flex: 1;
+	font-size: 16px;
+}
+
+.hue-badge {
+	font-size: 11px;
+	letter-spacing: 1px;
+}
+
+.hue-bar {
+	width: 60px;
+	height: 4px;
+	background: #333;
+	border-radius: 2px;
+}
+
+.hue-fill {
+	height: 100%;
+	background: #fc4;
+	border-radius: 2px;
+}
