@@ -1,0 +1,254 @@
+/* Jarvis fullscreen overlay */
+#jarvis-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgb(0 0 0 / 95%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  font-family: "Roboto Mono", "Courier New", monospace;
+}
+
+#jarvis-overlay.visible {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Arc rings */
+.jarvis-rings {
+  position: relative;
+  width: 300px;
+  height: 300px;
+  margin-bottom: 40px;
+}
+
+.jarvis-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  top: 50%;
+  left: 50%;
+}
+
+.jarvis-ring:nth-child(1) {
+  width: 80px;
+  height: 80px;
+  margin: -40px 0 0 -40px;
+}
+
+.jarvis-ring:nth-child(2) {
+  width: 150px;
+  height: 150px;
+  margin: -75px 0 0 -75px;
+}
+
+.jarvis-ring:nth-child(3) {
+  width: 220px;
+  height: 220px;
+  margin: -110px 0 0 -110px;
+}
+
+.jarvis-ring:nth-child(4) {
+  width: 290px;
+  height: 290px;
+  margin: -145px 0 0 -145px;
+}
+
+/* LISTENING — cyan, pulsing */
+#jarvis-overlay.listening .jarvis-ring {
+  border-color: #00d4ff;
+  animation: pulse-ring 1.5s ease-in-out infinite;
+}
+
+/* PROCESSING — amber, spinning dashes */
+#jarvis-overlay.processing .jarvis-ring {
+  border-color: #fa0;
+  border-style: dashed;
+  animation: spin-ring 2s linear infinite;
+}
+
+/* SPEAKING — green, amplitude pulse */
+#jarvis-overlay.speaking .jarvis-ring {
+  border-color: #0f8;
+  animation: speak-pulse 0.6s ease-in-out infinite alternate;
+}
+
+/* Listening per-ring staggered delays — after all base ring state rules */
+#jarvis-overlay.listening .jarvis-ring:nth-child(1) {
+  animation-delay: 0s;
+}
+
+#jarvis-overlay.listening .jarvis-ring:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+#jarvis-overlay.listening .jarvis-ring:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+#jarvis-overlay.listening .jarvis-ring:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+#jarvis-overlay.processing .jarvis-ring:nth-child(odd) {
+  animation-direction: reverse;
+}
+
+@keyframes pulse-ring {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(1.04);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes spin-ring {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes speak-pulse {
+  from {
+    opacity: 0.4;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+/* Waveform bars */
+.jarvis-waveform {
+  display: flex;
+  gap: 5px;
+  align-items: flex-end;
+  height: 44px;
+  margin-bottom: 32px;
+}
+
+.jarvis-bar {
+  width: 7px;
+  height: 4px;
+  border-radius: 3px;
+  background: #00d4ff;
+  animation: wave-bar 0.5s ease-in-out infinite alternate;
+}
+
+.jarvis-bar:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.jarvis-bar:nth-child(2) {
+  animation-delay: 0.06s;
+}
+
+.jarvis-bar:nth-child(3) {
+  animation-delay: 0.12s;
+}
+
+.jarvis-bar:nth-child(4) {
+  animation-delay: 0.18s;
+}
+
+.jarvis-bar:nth-child(5) {
+  animation-delay: 0.24s;
+}
+
+.jarvis-bar:nth-child(6) {
+  animation-delay: 0.18s;
+}
+
+.jarvis-bar:nth-child(7) {
+  animation-delay: 0.12s;
+}
+
+.jarvis-bar:nth-child(8) {
+  animation-delay: 0.06s;
+}
+
+.jarvis-bar:nth-child(9) {
+  animation-delay: 0s;
+}
+
+@keyframes wave-bar {
+  from {
+    height: 4px;
+    opacity: 0.3;
+  }
+
+  to {
+    height: 36px;
+    opacity: 1;
+  }
+}
+
+#jarvis-overlay.processing .jarvis-bar {
+  background: #fa0;
+}
+
+#jarvis-overlay.speaking .jarvis-bar {
+  background: #0f8;
+}
+
+/* Text area */
+.jarvis-text {
+  text-align: center;
+  max-width: 480px;
+  min-height: 90px;
+}
+
+.jarvis-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+#jarvis-overlay.listening .jarvis-label {
+  color: #00d4ff;
+}
+
+#jarvis-overlay.processing .jarvis-label {
+  color: #fa0;
+}
+
+#jarvis-overlay.speaking .jarvis-label {
+  color: #0f8;
+}
+
+.jarvis-transcript {
+  color: #aaa;
+  font-size: 14px;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.jarvis-response {
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+}
