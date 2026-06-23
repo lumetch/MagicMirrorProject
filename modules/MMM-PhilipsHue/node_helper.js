@@ -26,6 +26,7 @@ module.exports = NodeHelper.create({
 	 */
 	socketNotificationReceived (notification, payload) {
 		if (notification === "HUE_INIT") {
+			if (this.pollTimer) clearInterval(this.pollTimer);
 			this.config = payload;
 			this.pollRooms();
 			this.pollTimer = setInterval(() => this.pollRooms(), this.config.pollInterval);
@@ -55,16 +56,20 @@ module.exports = NodeHelper.create({
 	 */
 	async sendCommand ({ room, on }) {
 		const { bridgeIp, username } = this.config;
-		const res = await fetch(`http://${bridgeIp}/api/${username}/groups`);
-		const groups = await res.json();
-		const targets = buildToggleTargets(groups, room);
-		await Promise.all(targets.map((id) =>
-			fetch(`http://${bridgeIp}/api/${username}/groups/${id}/action`, {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ on })
-			})
-		));
-		this.pollRooms();
+		try {
+			const res = await fetch(`http://${bridgeIp}/api/${username}/groups`);
+			const groups = await res.json();
+			const targets = buildToggleTargets(groups, room);
+			await Promise.all(targets.map((id) =>
+				fetch(`http://${bridgeIp}/api/${username}/groups/${id}/action`, {
+					method: "PUT",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ on })
+				})
+			));
+			this.pollRooms();
+		} catch (err) {
+			this.sendSocketNotification("HUE_ERROR", err.message);
+		}
 	}
 });
