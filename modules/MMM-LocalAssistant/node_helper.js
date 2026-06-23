@@ -93,27 +93,29 @@ module.exports = NodeHelper.create({
 	async onWakeWord () {
 		if (this.isCapturing) return;
 		this.isCapturing = true;
-
 		this.sendSocketNotification("ASSISTANT_LISTENING", {});
 
 		const audioFile = path.join(os.tmpdir(), "mm_capture.wav");
 		const { captureSeconds } = this.config;
 
-		await this.captureAudio(audioFile, captureSeconds);
+		try {
+			await this.captureAudio(audioFile, captureSeconds);
 
-		const text = await this.transcribe(audioFile);
-		this.sendSocketNotification("ASSISTANT_PROCESSING", { text });
+			const text = await this.transcribe(audioFile);
+			this.sendSocketNotification("ASSISTANT_PROCESSING", { text });
 
-		const command = dispatch(text);
-		const response = await this.executeCommand(command, text);
+			const command = dispatch(text);
+			const response = await this.executeCommand(command, text);
 
-		this.sendSocketNotification("ASSISTANT_SPEAKING", { transcript: text, response });
-		await this.speak(response);
-
-		this.sendSocketNotification("ASSISTANT_IDLE", {});
-		this.isCapturing = false;
-
-		try { fs.unlinkSync(audioFile); } catch (_) { /* ignore */ }
+			this.sendSocketNotification("ASSISTANT_SPEAKING", { transcript: text, response });
+			await this.speak(response);
+		} catch (err) {
+			Log.error("MMM-LocalAssistant: pipeline error:", err.message);
+		} finally {
+			this.isCapturing = false;
+			this.sendSocketNotification("ASSISTANT_IDLE", {});
+			try { fs.unlinkSync(audioFile); } catch (_) { /* ignore if file was never created */ }
+		}
 	},
 
 	/**
@@ -198,9 +200,10 @@ module.exports = NodeHelper.create({
 	 */
 	speak (text) {
 		const { espeakVoice } = this.config;
-		return new Promise((resolve) => {
+		return new Promise((resolve, reject) => {
 			const proc = spawn("espeak-ng", ["-v", espeakVoice, text]);
 			proc.on("close", resolve);
+			proc.on("error", reject);
 		});
 	}
 });
