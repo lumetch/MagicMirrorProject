@@ -1,8 +1,90 @@
-/* Room card styles — layout handled by config/custom.css */
-.hue-icon {
-  font-size: 20px;
+/* Room card grid */
+.hue-rooms {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 4px 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.hue-room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 12px 14px;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 4%);
+  border: 1px solid rgb(255 255 255 / 6%);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* ON state — amber glow */
+.hue-room.on {
+  background: rgb(255 200 64 / 10%);
+  border-color: rgb(255 200 64 / 30%);
+  box-shadow: 0 0 18px rgb(255 200 64 / 12%);
+}
+
+/* OFF state — dimmed */
+.hue-room.off {
+  opacity: 0.45;
 }
 
 .hue-room:hover {
+  background: rgb(255 255 255 / 9%);
+}
+
+.hue-room.on:hover {
+  background: rgb(255 200 64 / 16%);
+}
+
+/* Icon */
+.hue-icon {
+  font-size: 38px;
+  margin-bottom: 10px;
+  transition: filter 0.3s;
+  line-height: 1;
+}
+
+.hue-room.on .hue-icon {
+  filter: drop-shadow(0 0 7px rgb(255 200 64 / 80%));
+}
+
+/* Room name */
+.hue-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-align: center;
+  margin-bottom: 6px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ON/OFF label */
+.hue-badge {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  opacity: 0.5;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+/* Brightness bar */
+.hue-bar {
+  width: 80%;
+  height: 3px;
   background: rgb(255 255 255 / 10%);
+  border-radius: 2px;
+}
+
+.hue-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #fa0, #fd4);
+  border-radius: 2px;
+  transition: width 0.5s ease;
 }
