@@ -67,7 +67,7 @@ module.exports = NodeHelper.create({
 					body: JSON.stringify({ on })
 				})
 			));
-			this.pollRooms();
+			await this.pollRooms();
 		} catch (err) {
 			this.sendSocketNotification("HUE_ERROR", err.message);
 		}

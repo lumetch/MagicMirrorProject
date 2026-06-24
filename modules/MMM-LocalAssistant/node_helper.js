@@ -40,6 +40,15 @@ module.exports = NodeHelper.create({
 	},
 
 	/**
+	 * Returns SoX input-device arguments for the configured mic.
+	 * @returns {string[]}
+	 */
+	micArgs () {
+		const { micDevice } = this.config;
+		return micDevice === "default" ? ["-d"] : ["-t", "alsa", micDevice];
+	},
+
+	/**
 	 * Starts the continuous Porcupine wake-word detection loop.
 	 * Reads raw PCM from SoX and processes frame-by-frame.
 	 */
@@ -55,7 +64,7 @@ module.exports = NodeHelper.create({
 		const frameSizeBytes = porcupine.frameLength * 2;
 
 		this.soxProcess = spawn("sox", [
-			"-d",
+			...this.micArgs(),
 			"-r", String(porcupine.sampleRate),
 			"-c", "1",
 			"-b", "16",
@@ -127,7 +136,7 @@ module.exports = NodeHelper.create({
 	captureAudio (outputFile, seconds) {
 		return new Promise((resolve, reject) => {
 			const rec = spawn("sox", [
-				"-d",
+				...this.micArgs(),
 				"-r", "16000",
 				"-c", "1",
 				outputFile,
