@@ -2,9 +2,10 @@
 
 Module.register("MMM-LocalAssistant", {
 	defaults: {
-		whisperPath: "/home/pi/whisper.cpp/main",
-		whisperModel: "/home/pi/whisper.cpp/models/ggml-tiny.en.bin",
-		porcupineAccessKey: "",
+		whisperPath: "/home/lumetch/whisper.cpp/build/bin/whisper-cli",
+		whisperModel: "/home/lumetch/whisper.cpp/models/ggml-tiny.en.bin",
+		wakeWordModel: "hey_jarvis_v0.1",
+		wakeWordThreshold: 0.5,
 		captureSeconds: 5,
 		espeakVoice: "en-gb",
 		micDevice: "default"

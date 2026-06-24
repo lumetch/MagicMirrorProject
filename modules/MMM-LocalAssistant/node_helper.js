@@ -1,7 +1,6 @@
 "use strict";
 
 const NodeHelper = require("node_helper");
-const { Porcupine, BuiltinKeyword } = require("@picovoice/porcupine-node");
 const { dispatch } = require("./command-dispatcher");
 const { spawn, execFile } = require("child_process");
 const fs = require("fs");
@@ -16,7 +15,7 @@ module.exports = NodeHelper.create({
 	isCapturing: false,
 
 	/** @type {import("child_process").ChildProcess|null} */
-	soxProcess: null,
+	wakeWordProcess: null,
 
 	/**
 	 * Module lifecycle — called when the helper starts.
@@ -24,7 +23,7 @@ module.exports = NodeHelper.create({
 	start () {
 		this.config = null;
 		this.isCapturing = false;
-		this.soxProcess = null;
+		this.wakeWordProcess = null;
 	},
 
 	/**
@@ -49,50 +48,53 @@ module.exports = NodeHelper.create({
 	},
 
 	/**
-	 * Starts the continuous Porcupine wake-word detection loop.
-	 * Reads raw PCM from SoX and processes frame-by-frame.
+	 * Spawns the openWakeWord Python subprocess and listens for WAKE events on stdout.
 	 */
 	startWakeWordLoop () {
-		const { porcupineAccessKey } = this.config;
+		const { wakeWordModel, wakeWordThreshold, micDevice } = this.config;
+		const scriptPath = path.join(__dirname, "wake-word-listener.py");
 
-		const porcupine = new Porcupine(
-			porcupineAccessKey,
-			[BuiltinKeyword.JARVIS],
-			[0.5]
-		);
-
-		const frameSizeBytes = porcupine.frameLength * 2;
-
-		this.soxProcess = spawn("sox", [
-			...this.micArgs(),
-			"-r", String(porcupine.sampleRate),
-			"-c", "1",
-			"-b", "16",
-			"-e", "signed-integer",
-			"-t", "raw",
-			"-"
+		this.wakeWordProcess = spawn("python3", [
+			scriptPath,
+			wakeWordModel,
+			String(wakeWordThreshold),
+			micDevice
 		]);
 
-		let buffer = Buffer.alloc(0);
-
-		this.soxProcess.stdout.on("data", (chunk) => {
-			if (this.isCapturing) return;
-			buffer = Buffer.concat([buffer, chunk]);
-			while (buffer.length >= frameSizeBytes) {
-				const frame = new Int16Array(
-					buffer.buffer,
-					buffer.byteOffset,
-					porcupine.frameLength
-				);
-				if (porcupine.process(frame) >= 0) {
-					this.onWakeWord();
-				}
-				buffer = buffer.subarray(frameSizeBytes);
+		this.wakeWordProcess.stdout.on("data", (data) => {
+			if (data.toString().includes("WAKE") && !this.isCapturing) {
+				this.onWakeWord();
 			}
 		});
 
-		this.soxProcess.on("error", (err) => {
-			Log.error("MMM-LocalAssistant: SoX error:", err.message);
+		this.wakeWordProcess.stderr.on("data", (data) => {
+			Log.info("MMM-LocalAssistant [wake-word]:", data.toString().trim());
+		});
+
+		this.wakeWordProcess.on("error", (err) => {
+			Log.error("MMM-LocalAssistant: wake-word process error:", err.message);
+		});
+
+		this.wakeWordProcess.on("close", (code) => {
+			if (!this.isCapturing) {
+				Log.warn("MMM-LocalAssistant: wake-word process exited with code", code);
+			}
+		});
+	},
+
+	/**
+	 * Kills the wake-word subprocess so SoX can exclusively access the mic.
+	 * @returns {Promise<void>}
+	 */
+	stopWakeWordLoop () {
+		return new Promise((resolve) => {
+			if (!this.wakeWordProcess) {
+				resolve();
+				return;
+			}
+			this.wakeWordProcess.once("close", resolve);
+			this.wakeWordProcess.kill("SIGTERM");
+			this.wakeWordProcess = null;
 		});
 	},
 
@@ -108,6 +110,7 @@ module.exports = NodeHelper.create({
 		const { captureSeconds } = this.config;
 
 		try {
+			await this.stopWakeWordLoop();
 			await this.captureAudio(audioFile, captureSeconds);
 
 			const text = await this.transcribe(audioFile);
@@ -124,6 +127,7 @@ module.exports = NodeHelper.create({
 			this.isCapturing = false;
 			this.sendSocketNotification("ASSISTANT_IDLE", {});
 			try { fs.unlinkSync(audioFile); } catch (_) { /* ignore if file was never created */ }
+			this.startWakeWordLoop();
 		}
 	},
 
@@ -174,7 +178,7 @@ module.exports = NodeHelper.create({
 	 */
 	async executeCommand (command, rawText) {
 		if (!command) {
-			return `Sorry, I didn't understand that.`;
+			return "Sorry, I didn't understand that.";
 		}
 		if (command.type === "HUE_COMMAND") {
 			this.sendSocketNotification("HUE_COMMAND", command.payload);
