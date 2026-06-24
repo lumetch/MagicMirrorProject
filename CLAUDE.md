@@ -111,9 +111,3 @@ To run a single test file:
 ```bash
 npx vitest run tests/unit/classes/translator_spec.js
 ```
-
-## Branching Model
-
-- `develop` — active development branch; PRs target here
-- `master` — releases only; tagged with `v2.x.x`
-- Never merge your own PRs
