@@ -1,0 +1,6 @@
+{
+	"name": "MMM-PhilipsHue",
+	"version": "1.0.0",
+	"description": "Philips Hue control for MagicMirror²",
+	"main": "MMM-PhilipsHue.js"
+}

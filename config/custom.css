@@ -1,0 +1,29 @@
+/* Portrait layout — tightens padding and sizes for 1080×1920 */
+body {
+	overflow: hidden;
+}
+
+.region.top.left,
+.region.top.right {
+	width: 50%;
+}
+
+.region.upper.third,
+.region.middle.center,
+.region.lower.third {
+	width: 100%;
+	max-width: 100%;
+}
+
+.module {
+	margin: 10px 15px;
+}
+
+.clock .time {
+	font-size: 48px;
+}
+
+.clock .date {
+	font-size: 18px;
+}
+

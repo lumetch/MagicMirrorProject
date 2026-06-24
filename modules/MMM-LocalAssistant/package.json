@@ -1,0 +1,6 @@
+{
+	"name": "MMM-LocalAssistant",
+	"version": "1.0.0",
+	"description": "Offline voice assistant with Jarvis overlay for MagicMirror²",
+	"main": "MMM-LocalAssistant.js"
+}

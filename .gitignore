@@ -54,8 +54,10 @@ Temporary Items
 .directory
 .Trash-*
 
-# Ignore all modules
+# Ignore all modules except custom ones tracked in this repo
 /modules/*
+!/modules/MMM-PhilipsHue
+!/modules/MMM-LocalAssistant
 
 # Ignore users config file but keep the samples.
 config
