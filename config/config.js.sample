@@ -3,99 +3,134 @@
  * For more information on how you can configure this file
  * see https://docs.magicmirror.builders/configuration/introduction.html
  * and https://docs.magicmirror.builders/modules/configuration.html
- *
- * You can use environment variables using a `config.js.template` file instead of `config.js`
- * which will be converted to `config.js` while starting. For more information
- * see https://docs.magicmirror.builders/configuration/introduction.html#enviromnent-variables
  */
 let config = {
-	address: "localhost",	// Address to listen on, can be:
-							// - "localhost", "127.0.0.1", "::1" to listen on loopback interface
-							// - another specific IPv4/6 to listen on a specific interface
-							// - "0.0.0.0", "::" to listen on any interface
-							// Default, when address config is left out or empty, is "localhost"
+	address: "localhost",
 	port: 8080,
-	basePath: "/",	// The URL path where MagicMirror² is hosted. If you are using a Reverse proxy
-									// you must set the sub path here. basePath must end with a /
-	ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1", "::1"],	// Set [] to allow all IP addresses
-									// or add a specific IPv4 of 192.168.1.5 :
-									// ["127.0.0.1", "::ffff:127.0.0.1", "::1", "::ffff:192.168.1.5"],
-									// or IPv4 range of 192.168.3.0 --> 192.168.3.15 use CIDR format :
-									// ["127.0.0.1", "::ffff:127.0.0.1", "::1", "::ffff:192.168.3.0/28"],
-
-	useHttps: false,			// Support HTTPS or not, default "false" will use HTTP
-	httpsPrivateKey: "",	// HTTPS private key path, only require when useHttps is true
-	httpsCertificate: "",	// HTTPS Certificate path, only require when useHttps is true
-
+	basePath: "/",
+	ipWhitelist: ["127.0.0.1", "::ffff:127.0.0.1", "::1"],
+	useHttps: false,
+	httpsPrivateKey: "",
+	httpsCertificate: "",
 	language: "en",
-	locale: "en-US",   // this variable is provided as a consistent location
-			   // it is currently only used by 3rd party modules. no MagicMirror code uses this value
-			   // as we have no usage, we  have no constraints on what this field holds
-			   // see https://en.wikipedia.org/wiki/Locale_(computer_software) for the possibilities
-
-	logLevel: ["INFO", "LOG", "WARN", "ERROR"], // Add "DEBUG" for even more logging
+	locale: "en-US",
+	logLevel: ["INFO", "LOG", "WARN", "ERROR"],
 	timeFormat: 24,
 	units: "metric",
+	timezone: "Europe/Zurich",
 
 	modules: [
+
+		// ─── Always visible ───────────────────────────────────────────────────────
+
 		{
-			module: "alert",
+			module: "alert"
 		},
 		{
 			module: "updatenotification",
 			position: "top_bar"
 		},
 		{
-			module: "clock",
-			position: "top_left"
-		},
-		{
-			module: "calendar",
-			header: "US Holidays",
-			position: "top_left",
+			// Fullscreen Jarvis overlay — activates on wake word, covers all pages.
+			// Jabra SPEAK 510 USB: card 2 → plughw:2,0
+			module: "MMM-LocalAssistant",
+			position: "fullscreen_above",
 			config: {
-				calendars: [
-					{
-						fetchInterval: 7 * 24 * 60 * 60 * 1000,
-						symbol: "calendar-check",
-						url: "https://ics.calendarlabs.com/76/mm3137/US_Holidays.ics"
-					}
-				]
+				whisperPath: "/home/lumetch/whisper.cpp/build/bin/whisper-cli",
+				whisperModel: "/home/lumetch/whisper.cpp/models/ggml-tiny.en.bin",
+				wakeWordModel: "hey_jarvis_v0.1",
+				wakeWordThreshold: 0.5,
+				captureSeconds: 5,
+				espeakVoice: "en-gb",
+				micDevice: "plughw:2,0"
 			}
 		},
 		{
-			module: "compliments",
-			position: "lower_third"
+			module: "MMM-pages",
+			config: {
+				rotationTime: 60000,
+				animationTime: 1000
+			}
+		},
+
+		// ─── Page 1 — Information ─────────────────────────────────────────────────
+
+		{
+			module: "clock",
+			position: "top_left",
+			classes: "page0",
+			config: {
+				timezone: "Europe/Zurich"
+			}
 		},
 		{
 			module: "weather",
 			position: "top_right",
+			classes: "page0",
 			config: {
 				weatherProvider: "openmeteo",
 				type: "current",
-				lat: 40.776676,
-				lon: -73.971321
+				lat: 47.3769,
+				lon: 8.5417
 			}
 		},
 		{
 			module: "weather",
 			position: "top_right",
 			header: "Weather Forecast",
+			classes: "page0",
 			config: {
 				weatherProvider: "openmeteo",
 				type: "forecast",
-				lat: 40.776676,
-				lon: -73.971321
+				lat: 47.3769,
+				lon: 8.5417
 			}
 		},
 		{
+			module: "calendar",
+			header: "Calendar",
+			position: "upper_third",
+			classes: "page0",
+			config: {
+				calendars: [
+					{
+						fetchInterval: 7 * 24 * 60 * 60 * 1000,
+						symbol: "calendar-check",
+						// Replace with your Google Calendar iCal URL from
+						// Google Calendar → Settings → "Integrate calendar" → "Secret address in iCal format"
+						url: "https://calendar.google.com/calendar/ical/YOUR_CALENDAR_ID/basic.ics"
+					}
+				],
+				maximumEntries: 3
+			}
+		},
+		{
+			// Continuous ambient Jarvis animation — slow-breathing concentric rings in light blue.
+			module: "MMM-JarvisAmbient",
+			position: "middle_center",
+			classes: "page0"
+		},
+		{
 			module: "newsfeed",
-			position: "bottom_bar",
+			position: "lower_third",
+			classes: "page0",
 			config: {
 				feeds: [
 					{
-						title: "New York Times",
-						url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+						title: "Krebs on Security",
+						url: "https://krebsonsecurity.com/feed/"
+					},
+					{
+						title: "The Hacker News",
+						url: "https://feeds.feedburner.com/TheHackersNews"
+					},
+					{
+						title: "Dark Reading",
+						url: "https://www.darkreading.com/rss.xml"
+					},
+					{
+						title: "SANS ISC",
+						url: "https://isc.sans.edu/rssfeed_full.xml"
 					}
 				],
 				showSourceTitle: true,
@@ -104,6 +139,64 @@ let config = {
 				broadcastNewsUpdates: true
 			}
 		},
+		{
+			module: "weather",
+			position: "bottom_left",
+			header: "5-Day Forecast",
+			classes: "page0",
+			config: {
+				weatherProvider: "openmeteo",
+				type: "forecast",
+				lat: 47.3769,
+				lon: 8.5417,
+				maxNumberOfDays: 5
+			}
+		},
+
+		// ─── Page 2 — Smart Home ──────────────────────────────────────────────────
+
+		{
+			module: "clock",
+			position: "top_bar",
+			classes: "page1",
+			config: {
+				timezone: "Europe/Zurich",
+				displaySeconds: false
+			}
+		},
+		{
+			module: "MMM-PhilipsHue",
+			position: "upper_third",
+			classes: "page1",
+			config: {
+				// Run: node modules/MMM-PhilipsHue/scripts/hue-pair.js <bridge-ip>
+				// to get the username after pressing the link button on the bridge.
+				bridgeIp: "YOUR_HUE_BRIDGE_IP",
+				username: "YOUR_HUE_USERNAME",
+				pollInterval: 30000,
+				rooms: ["Office", "Living Room", "Bedroom"]
+			}
+		},
+		{
+			// Spotify now-playing display.
+			// Setup: see modules/MMM-OnSpotify/README.md — requires a Spotify Developer app.
+			// 1. Create app at developer.spotify.com (redirect URI: http://localhost:8888/callback)
+			// 2. Run: node modules/MMM-OnSpotify/tools/auth.js <CLIENT_ID> <CLIENT_SECRET>
+			// 3. Fill accessToken / refreshToken from the output.
+			module: "MMM-OnSpotify",
+			position: "middle_center",
+			classes: "page1",
+			config: {
+				clientID: "YOUR_SPOTIFY_CLIENT_ID",
+				clientSecret: "YOUR_SPOTIFY_CLIENT_SECRET",
+				accessToken: "",
+				refreshToken: "",
+				broadcastSpotifyStatus: true,
+				displayWhenEmpty: "clock",
+				userAffinityUsage: "TOP_TRACKS",
+				showDebugPalette: false
+			}
+		}
 	]
 };
 

@@ -58,6 +58,7 @@ Temporary Items
 /modules/*
 !/modules/MMM-PhilipsHue
 !/modules/MMM-LocalAssistant
+!/modules/MMM-JarvisAmbient
 
 # Ignore users config file but keep the samples.
 config
