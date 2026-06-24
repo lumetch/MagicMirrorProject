@@ -21,7 +21,7 @@ let config = {
 
 	modules: [
 
-		// ─── Always visible ───────────────────────────────────────────────────────
+		// ─── Always visible (fixed across all pages) ─────────────────────────────
 
 		{
 			module: "alert"
@@ -29,6 +29,12 @@ let config = {
 		{
 			module: "updatenotification",
 			position: "top_bar"
+		},
+		{
+			module: "MMM-Remote-Control",
+			config: {
+				apiKey: ""
+			}
 		},
 		{
 			// Fullscreen Jarvis overlay — activates on wake word, covers all pages.
@@ -45,20 +51,12 @@ let config = {
 				micDevice: "plughw:2,0"
 			}
 		},
-		{
-			module: "MMM-pages",
-			config: {
-				rotationTime: 60000,
-				animationTime: 1000
-			}
-		},
 
 		// ─── Page 1 — Information ─────────────────────────────────────────────────
 
 		{
 			module: "clock",
 			position: "top_left",
-			classes: "page0",
 			config: {
 				timezone: "Europe/Zurich"
 			}
@@ -66,37 +64,24 @@ let config = {
 		{
 			module: "weather",
 			position: "top_right",
-			classes: "page0",
+			header: "Now",
 			config: {
 				weatherProvider: "openmeteo",
 				type: "current",
 				lat: 47.3769,
-				lon: 8.5417
-			}
-		},
-		{
-			module: "weather",
-			position: "top_right",
-			header: "Weather Forecast",
-			classes: "page0",
-			config: {
-				weatherProvider: "openmeteo",
-				type: "forecast",
-				lat: 47.3769,
-				lon: 8.5417
+				lon: 8.5417,
+				units: "metric"
 			}
 		},
 		{
 			module: "calendar",
 			header: "Calendar",
 			position: "upper_third",
-			classes: "page0",
 			config: {
 				calendars: [
 					{
 						fetchInterval: 7 * 24 * 60 * 60 * 1000,
 						symbol: "calendar-check",
-						// Replace with your Google Calendar iCal URL from
 						// Google Calendar → Settings → "Integrate calendar" → "Secret address in iCal format"
 						url: "https://calendar.google.com/calendar/ical/YOUR_CALENDAR_ID/basic.ics"
 					}
@@ -107,13 +92,11 @@ let config = {
 		{
 			// Continuous ambient Jarvis animation — slow-breathing concentric rings in light blue.
 			module: "MMM-JarvisAmbient",
-			position: "middle_center",
-			classes: "page0"
+			position: "middle_center"
 		},
 		{
 			module: "newsfeed",
 			position: "lower_third",
-			classes: "page0",
 			config: {
 				feeds: [
 					{
@@ -143,12 +126,12 @@ let config = {
 			module: "weather",
 			position: "bottom_left",
 			header: "5-Day Forecast",
-			classes: "page0",
 			config: {
 				weatherProvider: "openmeteo",
 				type: "forecast",
 				lat: 47.3769,
 				lon: 8.5417,
+				units: "metric",
 				maxNumberOfDays: 5
 			}
 		},
@@ -156,18 +139,9 @@ let config = {
 		// ─── Page 2 — Smart Home ──────────────────────────────────────────────────
 
 		{
-			module: "clock",
-			position: "top_bar",
-			classes: "page1",
-			config: {
-				timezone: "Europe/Zurich",
-				displaySeconds: false
-			}
-		},
-		{
 			module: "MMM-PhilipsHue",
 			position: "upper_third",
-			classes: "page1",
+			header: "Lights",
 			config: {
 				// Run: node modules/MMM-PhilipsHue/scripts/hue-pair.js <bridge-ip>
 				// to get the username after pressing the link button on the bridge.
@@ -179,13 +153,9 @@ let config = {
 		},
 		{
 			// Spotify now-playing display.
-			// Setup: see modules/MMM-OnSpotify/README.md — requires a Spotify Developer app.
-			// 1. Create app at developer.spotify.com (redirect URI: http://localhost:8888/callback)
-			// 2. Run: node modules/MMM-OnSpotify/tools/auth.js <CLIENT_ID> <CLIENT_SECRET>
-			// 3. Fill accessToken / refreshToken from the output.
+			// OAuth tokens needed — see MMM-OnSpotify README for auth setup.
 			module: "MMM-OnSpotify",
 			position: "middle_center",
-			classes: "page1",
 			config: {
 				clientID: "YOUR_SPOTIFY_CLIENT_ID",
 				clientSecret: "YOUR_SPOTIFY_CLIENT_SECRET",
@@ -195,6 +165,28 @@ let config = {
 				displayWhenEmpty: "clock",
 				userAffinityUsage: "TOP_TRACKS",
 				showDebugPalette: false
+			}
+		},
+
+		// ─── Page management ──────────────────────────────────────────────────────
+
+		{
+			// MMM-pages uses explicit module name lists — NOT classes on each module.
+			// Modules not listed here AND not in fixed[] are hidden on all pages.
+			module: "MMM-pages",
+			config: {
+				modules: [
+					["clock", "weather", "calendar", "MMM-JarvisAmbient", "newsfeed"],
+					["MMM-PhilipsHue", "MMM-OnSpotify"]
+				],
+				fixed: [
+					"alert",
+					"updatenotification",
+					"MMM-Remote-Control",
+					"MMM-LocalAssistant"
+				],
+				rotationTime: 60000,
+				animationTime: 1000
 			}
 		}
 	]
