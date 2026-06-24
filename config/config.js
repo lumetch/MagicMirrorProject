@@ -79,9 +79,9 @@ var config = {
 			header: "SBB Departures",
 			position: "middle_center",
 			config: {
-				stationId: "FILL_IN_SBB_STATION_ID",
-				maxDepartures: 4,
-				walk: 5
+				stationID: "FILL_IN_SBB_STATION_ID",
+				maxReachableDepartures: 4,
+				timeToStation: 5
 			}
 		},
 		{
