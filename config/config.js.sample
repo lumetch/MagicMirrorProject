@@ -135,6 +135,15 @@ let config = {
 				maxNumberOfDays: 5
 			}
 		},
+		{
+			module: "MMM-Vulnera",
+			position: "bottom_left",
+			header: "Vulnera Monitoring",
+			config: {
+				url: "https://api.vulnera.ch/health",
+				refreshInterval: 60 * 1000
+			}
+		},
 
 		// ─── Page 2 — Smart Home ──────────────────────────────────────────────────
 
@@ -176,7 +185,7 @@ let config = {
 			module: "MMM-pages",
 			config: {
 				modules: [
-					["clock", "weather", "calendar", "MMM-JarvisAmbient", "newsfeed"],
+					["clock", "weather", "calendar", "MMM-JarvisAmbient", "newsfeed", "MMM-Vulnera"],
 					["MMM-PhilipsHue", "MMM-OnSpotify"]
 				],
 				fixed: [

@@ -59,6 +59,7 @@ Temporary Items
 !/modules/MMM-PhilipsHue
 !/modules/MMM-LocalAssistant
 !/modules/MMM-JarvisAmbient
+!/modules/MMM-Vulnera
 
 # Ignore users config file but keep the samples.
 config
