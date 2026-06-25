@@ -137,7 +137,7 @@ let config = {
 		},
 		{
 			module: "MMM-Vulnera",
-			position: "bottom_left",
+			position: "bottom_right",
 			header: "Vulnera Monitoring",
 			config: {
 				url: "https://api.vulnera.ch/health",
